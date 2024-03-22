@@ -1,6 +1,8 @@
 from flask import Flask, json, jsonify
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
 with open('../data.json','r', encoding = 'utf8') as file:
     data = json.load(file)
