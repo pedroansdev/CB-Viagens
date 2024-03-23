@@ -46,9 +46,10 @@ const options = reactive([
     }
 ])
 
-const services = ref([])
-const confService = ref(null)
-const econService = ref(null)
+var services = ref([])
+var confService = ref(null)
+var econService = ref(null)
+var isModalOpen = ref(false)
 
 async function getServices() {
     // Gets html form elements for comparisons
@@ -58,7 +59,7 @@ async function getServices() {
 
     // Checks if the form is empty 
     if (selectedValue == '' || dateInput == '') {
-        console.log('Insira os valores para realizar a cotação')
+        isModalOpen.value = true
     } else {
         // Axios obtains the endpoint according to the value that was selected in the form
         axios.get(`/${selectedValue}`).then((response) => {
@@ -80,42 +81,118 @@ async function getServices() {
         })
     }
 }
+
+function closeModal(){
+    isModalOpen.value = false
+    console.log(isModalOpen) 
+}
+
+function clear(){
+    location.reload()
+}
 </script>
 
 <template>
-    <div>
-        <h1>Calculadora de Viagem</h1>
-        <div>
-            <h2>Calcule o valor da viagem</h2>
-            <form action="" v-on:submit.prevent="getServices()">
-                <label for="cities">Destino</label><br>
-                <select name="cities" id="cities">
-                    <option v-for="option in options" :value="option.value">{{ option.city }}
-                    </option>
-                </select><br>
-                <label for="date">Data</label><br>
-                <input type="date" name="date" id="date"><br>
-                <button type="submit">Buscar</button>
-            </form>
+    <header class="bg-white shadow-lg min-w-full h-16 "></header>
+    <!-- Sidebar -->
+    <div
+        class="fixed top-0 bottom-0 p-2 overflow-y-auto text-center bg-cb-gray flex flex-col p-4 pt-6 space-y-16 w-1/6">
+        <img src="../assets/img/logo.png" alt="CBViagens logo">
+        <div class="flex flex-row items-center space-x-1">
+            <img src="../assets/img/calculator-edited.png" alt="Calculator Icon" width="16px">
+            <p class="text-cb-white font-semibold">Calculadora de Viagem</p>
         </div>
-        <div>
-            <div v-if="confService === null && econService === null">
-                <p>Nenhum dado selecionado.</p>
+    </div>
+    <div class="ml-56 mt-16">
+        <div class="grid grid-cols-5 mx-auto w-11/12 gap-4 shadow-xl rounded-b-md">
+
+            <div class="col-span-5 bg-cb-gray pl-6 py-2 rounded-t-md h-16 flex items-center space-x-2">
+                <img src="../assets/img/truck-edited.png" alt="Truck Icon" width="40px">
+                <p class="text-cb-white text-xl font-semibold">Calculadora de Viagem</p>
             </div>
-            <div v-else>
-                <div>
-                    <p>{{ confService[0].name }}</p>
-                    <p>Leito: {{ confService[0].bed }} (Completo)</p>
-                    <p>Tempo estimado: {{ confService[0].duration }}</p>
-                    <p>Preço: {{ confService[0].price_confort }}</p>
-                </div>
-                <div>
-                    <p>{{ econService[0].name }}</p>
-                    <p>Poltrona: {{ econService[0].seat }} (Convencional)</p>
-                    <p>Tempo estimado: {{ econService[0].duration }}</p>
-                    <p>Preço: {{ econService[0].price_econ }}</p>
+
+            <div class="col-span-2 ml-2 pt-4 pb-6">
+                <div class="bg-cb-light-gray p-4 rounded-lg flex flex-col items-center space-y-4">
+                    <div class="flex flex-row items-center space-x-2">
+                        <img src="../assets/img/earnings-edited-black.png" alt="Earnings Icon" width="30px">
+                        <p class="text-xl font-semibold text-cb-gray">Calcule o Valor da Viagem</p>
+                    </div>
+
+                    <form action="" v-on:submit.prevent="getServices()" class="flex flex-col space-y-2">
+                        <label for="cities" class="text-sm font-bold text-cb-gray-600">Destino</label>
+                        <select name="cities" id="cities" class="w-80 p-2 rounded-md text-cb-gray-600">
+                            <option v-for="option in options" :value="option.value">{{ option.city }}
+                            </option>
+                        </select>
+                        <label for="date" class="text-sm font-semibold text-cb-gray-600">Data</label>
+                        <input type="date" name="date" id="date" class="w-80 p-2 rounded-md text-cb-gray-600">
+                        <div class="text-center">
+                            <button type="submit"
+                                class="bg-cb-blue rounded-md text-center px-8 py-1 w-1/2">Buscar</button>
+                        </div>
+                    </form>
+
                 </div>
             </div>
+            <div class="col-span-3">
+                <div v-if="confService === null && econService === null"
+                    class="min-h-full flex items-center justify-center">
+                    <div>
+                        <p class="text-xl font-semibold text-cb-gray.">Nenhum dado selecionado.</p>
+                    </div>
+                </div>
+                <div v-else>
+                    <div class="flex flex-col justify-left space-y-4 mb-4">
+                        <p class="text-xl font-semibold text-cb-gray">Estas são as melhores alternativas de <br> viagem
+                            para a data selecionada</p>
+                        <div class="flex flex-row space-x-2 mr-4">
+                            <div class="bg-cb-light-gray w-1/2 flex flex-row rounded-r-md basis-3/4">
+                                <div class="flex items-center p-4 bg-cb-blue rounded-l-md">
+                                    <img src="../assets/img/earnings-edited.png" alt="Earnings Icon" width="40px">
+                                </div>
+                                <div class="p-4 rounded-r-md">
+                                    <p class="text-lg font-semibold">{{ confService[0].name }}</p>
+                                    <p>Leito: {{ confService[0].bed }} (Completo)</p>
+                                    <p>Tempo estimado: {{ confService[0].duration }}</p>
+                                </div>
+                            </div>
+                            <div class="bg-cb-light-gray rounded p-4 flex flex-col basis-1/4">
+                                <p class="text-lg font-semibold">Preço</p>
+                                <p>{{ confService[0].price_confort }}</p>
+                            </div>
+                        </div>
+                        <div class="flex flex-row space-x-2 mr-4">
+                            <div class="bg-cb-light-gray w-1/2 flex flex-row rounded-r-md basis-3/4">
+                                <div class="flex items-center p-4 bg-cb-blue rounded-l-md">
+                                    <img src="../assets/img/clock_check-edited.png" alt="Clock Icon" width="40px">
+                                </div>
+                                <div class="p-4 rounded-r-md">
+                                    <p class="text-lg font-semibold">{{ econService[0].name }}</p>
+                                    <p>Poltrona: {{ econService[0].seat }} (Convencional)</p>
+                                    <p>Tempo estimado: {{ econService[0].duration }}</p>
+                                </div>
+                            </div>
+                            <div class="bg-cb-light-gray rounded p-4 flex flex-col basis-1/4">
+                                <p class="text-lg font-semibold">Preço</p>
+                                <p>{{ econService[0].price_econ }}</p>
+                            </div>
+                        </div>
+                        <div class="flex justify-end mr-4">
+                            <div class="text-center">
+                                <button class="bg-cb-yellow rounded-md text-center px-8 py-1" v-on:click.prevent="clear">Limpar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div v-if="isModalOpen" class="fixed top-0 left-0 bottom-0 right-0 bg-cb-gray-transparent flex justify-center items-center" id="modal">
+        <div class="bg-cb-white flex flex-col justify-center items-center rounded-xl w-5/12 h-2/5 space-y-4">
+            <img src="../assets/img/attention-edited.png" alt="Attention Icon" width="50px">
+            <p class="text-xl font-semibold text-cb-gray text-center">Insira os valores para realizar <br> a cotação.</p>
+            <button class="bg-cb-blue rounded-md text-center px-8 py-1 font-semibold" v-on:click="closeModal" id="closeButton">Fechar</button>
         </div>
     </div>
 </template>
