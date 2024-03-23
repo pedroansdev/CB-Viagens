@@ -66,11 +66,11 @@ async function getServices() {
         axios.get(`/${selectedValue}`).then((response) => {
             services.value = response.data
 
-            // Arranges the list in descending order according to the price of the comfort plan 
+            // Arranges the list in ascending order according to the duratiion of the travel 
             confService.value = services.value.slice().sort((a, b) => {
-                const priceA = parseFloat(a.price_confort.replace(/[^\d.-]/g, ''))
-                const priceB = parseFloat(b.price_confort.replace(/[^\d.-]/g, ''))
-                return priceB - priceA
+                const durA = parseFloat(a.duration.replace('h', ''))
+                const durB = parseFloat(b.duration.replace('h', ''))
+                return durA - durB
             })
 
             // Arranges the list in ascending order according to the price of the economic plan 
